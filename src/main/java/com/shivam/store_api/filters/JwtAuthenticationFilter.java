@@ -1,17 +1,20 @@
 package com.shivam.store_api.filters;
 
 import java.io.IOException;
-import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.shivam.store_api.wrappers.UserRequestWrapper;
+
 import com.shivam.store_api.exceptions.CustomException;
 import com.shivam.store_api.models.User;
 import com.shivam.store_api.repositories.UserRepository;
 import com.shivam.store_api.services.JwtTokenService;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -63,17 +66,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
 
-            Optional<User> userOptional = userRepository.findById(userId);
-            if (!userOptional.isPresent()) {
+            User user = userRepository.findById(userId).orElseThrow(() -> {
                 throw new CustomException(
                         HttpStatus.NOT_FOUND,
-                        "User not found with id: " + userId);
-            }
+                        "User not found");
+            });
 
-            UserRequestWrapper userAwareRequest = new UserRequestWrapper(request);
-            userAwareRequest.setUser(userOptional.get());
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user,
+                    null,
+                    user.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            filterChain.doFilter(userAwareRequest, response);
+            // UserRequestWrapper userAwareRequest = new UserRequestWrapper(request);
+            // userAwareRequest.setUser(userOptional.get());
+
+            filterChain.doFilter(request, response);
 
         } catch (CustomException e) {
             handleCustomException(response, e);
