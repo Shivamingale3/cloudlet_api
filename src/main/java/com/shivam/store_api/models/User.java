@@ -46,7 +46,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
@@ -56,7 +56,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email; // or id
+        return username; // or id
     }
 
     @Override

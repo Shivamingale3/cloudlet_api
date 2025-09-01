@@ -33,17 +33,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
-
         try {
             String authToken = extractTokenFromCookie(request, "authToken");
             String refreshToken = extractTokenFromCookie(request, "refreshToken");
+
+            // If no cookie, fallback to Authorization header
+            if (authToken == null) {
+                authToken = extractTokenFromHeader(request);
+            }
 
             if (authToken == null) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            String userId = null;
+            String userId;
 
             try {
                 userId = jwtTokenService.extractUserId(authToken);
@@ -51,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (refreshToken == null) {
                     throw new CustomException(
                             HttpStatus.UNAUTHORIZED,
-                            "Authentication failed: Invalid or expired tokens",
+                            "Authentication failed: Invalid or expired token",
                             e);
                 }
 
@@ -72,13 +76,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         "User not found");
             });
 
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user,
-                    null,
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null,
                     user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            // UserRequestWrapper userAwareRequest = new UserRequestWrapper(request);
-            // userAwareRequest.setUser(userOptional.get());
 
             filterChain.doFilter(request, response);
 
@@ -89,8 +89,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    private void handleCustomException(HttpServletResponse response, CustomException e)
-            throws IOException {
+    private String extractTokenFromCookie(HttpServletRequest request, String cookieName) {
+        if (request.getCookies() == null)
+            return null;
+
+        for (Cookie cookie : request.getCookies()) {
+            if (cookieName.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    private String extractTokenFromHeader(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        return null;
+    }
+
+    private void handleCustomException(HttpServletResponse response, CustomException e) throws IOException {
         response.setStatus(e.getStatus().value());
         response.setContentType("application/json");
 
@@ -104,8 +123,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.getWriter().write(errorJson);
     }
 
-    private void handleGenericException(HttpServletResponse response, Exception e)
-            throws IOException {
+    private void handleGenericException(HttpServletResponse response, Exception e) throws IOException {
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.setContentType("application/json");
 
@@ -114,19 +132,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 java.time.LocalDateTime.now());
 
         response.getWriter().write(errorJson);
-    }
-
-    private String extractTokenFromCookie(HttpServletRequest request, String cookieName) {
-        if (request.getCookies() == null) {
-            return null;
-        }
-
-        for (Cookie cookie : request.getCookies()) {
-            if (cookieName.equals(cookie.getName())) {
-                return cookie.getValue();
-            }
-        }
-        return null;
     }
 
     @Override
