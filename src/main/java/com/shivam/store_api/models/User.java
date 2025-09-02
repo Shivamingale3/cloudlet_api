@@ -38,6 +38,8 @@ public class User implements UserDetails {
 
     private UserRole role;
 
+    private String avatar;
+
     @CreatedDate
     private Date createdAt;
 
