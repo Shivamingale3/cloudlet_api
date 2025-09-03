@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.shivam.store_api.exceptions.CustomException;
@@ -15,6 +16,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public User create(User userData) {
         try {
@@ -72,7 +76,6 @@ public class UserService {
             if (userData.getRole() != null) {
                 existingUser.setRole(userData.getRole());
             }
-
             return userRepository.save(existingUser);
         } catch (CustomException e) {
             throw e;
@@ -98,6 +101,21 @@ public class UserService {
             throw new CustomException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "Failed to delete user",
+                    e);
+        }
+    }
+
+    public void updatePassword(String id, String password) {
+        try {
+            User existingUser = findById(id);
+            existingUser.setPassword(passwordEncoder.encode(password));
+            userRepository.save(existingUser);
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CustomException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to update password",
                     e);
         }
     }

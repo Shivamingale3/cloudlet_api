@@ -6,8 +6,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.shivam.store_api.dto.LoginRequest;
+import com.shivam.store_api.dto.ResetPasswordRequest;
 import com.shivam.store_api.exceptions.CustomException;
+import com.shivam.store_api.models.EmailDetails;
+import com.shivam.store_api.models.Token;
 import com.shivam.store_api.models.User;
+import com.shivam.store_api.utilities.EmailTemplateUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -22,6 +26,12 @@ public class AuthService {
 
     @Autowired
     private JwtTokenService jwtTokenService;
+
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private EmailServiceImpl emailService;
 
     public User registerUser(User userData, HttpServletResponse response) {
         // Input validation
@@ -126,4 +136,39 @@ public class AuthService {
                     e);
         }
     }
+
+    public void getResetPasswordMail(String usernameOrEmail) {
+
+        User user = userService.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+                .orElseThrow(() -> new CustomException(
+                        HttpStatus.NOT_FOUND,
+                        "User not found"));
+        Token generatedToken = tokenService.createToken(user.getId());
+        String url = tokenService.generateTokenUrl(user.getId(), generatedToken.getToken());
+        String emailBody = EmailTemplateUtil.buildResetPasswordEmail(user.getUsername(), url);
+        EmailDetails emailDetails = new EmailDetails(user.getEmail(), emailBody, "Reset Password Link", null);
+        Boolean result = emailService.sendHtmlMail(emailDetails);
+        if (result == false) {
+            tokenService.delete(generatedToken.getId());
+            throw new CustomException(HttpStatus.CONFLICT, "Failed to send email! Try again!", null);
+        }
+    }
+
+    public void verifyToken(String userId, String token) {
+        tokenService.verifyToken(userId, token);
+    }
+
+    public void resetPassword(ResetPasswordRequest request) {
+        try {
+            tokenService.verifyToken(request.getUserId(), request.getToken());
+            userService.updatePassword(request.getUserId(), request.getPassword());
+            tokenService.deleteByUserId(request.getUserId());
+        } catch (Exception e) {
+            throw new CustomException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to reset password",
+                    e);
+        }
+    }
+
 }

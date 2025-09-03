@@ -3,13 +3,18 @@ package com.shivam.store_api.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shivam.store_api.dto.LoginRequest;
+import com.shivam.store_api.dto.ResetPasswordRequest;
 import com.shivam.store_api.dto.Response;
+import com.shivam.store_api.dto.VerifyResetPasswordTokenRequest;
 import com.shivam.store_api.models.User;
 import com.shivam.store_api.services.AuthService;
 
@@ -39,4 +44,23 @@ public class AuthController {
         authService.logoutUser(response);
         return ResponseEntity.ok(new Response(HttpStatus.OK, "Logout successful!", null));
     }
+
+    @GetMapping("/send-reset-password-email")
+    public ResponseEntity<Response> getResetPasswordMail(@RequestParam String usernameOrEmail) {
+        authService.getResetPasswordMail(usernameOrEmail);
+        return ResponseEntity.ok(new Response(HttpStatus.OK, "Reset password mail sent successfully!", null));
+    }
+
+    @PostMapping("/verify-reset-password-token")
+    public ResponseEntity<Response> verifyResetPasswordToken(@RequestBody VerifyResetPasswordTokenRequest requestBody) {
+        authService.verifyToken(requestBody.getUserId(), requestBody.getToken());
+        return ResponseEntity.ok(new Response(HttpStatus.OK, "Token valid!", null));
+    }
+
+    @PatchMapping("/reset-password")
+    public ResponseEntity<Response> resetPassword(@RequestBody ResetPasswordRequest requestBody) {
+        authService.resetPassword(requestBody);
+        return ResponseEntity.ok(new Response(HttpStatus.OK, "Password reset successfully!", null));
+    }
+
 }
