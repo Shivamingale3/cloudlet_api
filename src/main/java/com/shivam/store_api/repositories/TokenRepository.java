@@ -19,5 +19,5 @@ public interface TokenRepository extends MongoRepository<Token, String> {
 
     void deleteByUserId(@NonNull String userId);
 
-    List<Token> findByUserId(String userId);;
+    List<Token> findByUserId(String userId);
 }

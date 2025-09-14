@@ -31,7 +31,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private UserRepository userRepository;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
             String authToken = extractTokenFromCookie(request, "authToken");
@@ -43,8 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             if (authToken == null) {
-                filterChain.doFilter(request, response);
-                return;
+                throw new CustomException(HttpStatus.UNAUTHORIZED, "Missing authentication token");
             }
 
             String userId;
@@ -71,9 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             User user = userRepository.findById(userId).orElseThrow(() -> {
-                throw new CustomException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found");
+                throw new CustomException(HttpStatus.NOT_FOUND, "User not found");
             });
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null,
@@ -135,11 +134,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/api/auth/") ||
-                path.startsWith("/api/public/") ||
-                path.equals("/health") ||
-                path.equals("/");
+
+        return path.startsWith("/api/auth/")
+                || path.startsWith("/api/public/")
+                || path.equals("/health")
+                || path.equals("/")
+                || "OPTIONS".equalsIgnoreCase(request.getMethod());
     }
 }

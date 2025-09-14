@@ -1,5 +1,7 @@
 package com.shivam.store_api.config;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,10 +16,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.shivam.store_api.filters.JwtAuthenticationFilter;
-
-import jakarta.servlet.http.HttpServletResponse;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -37,20 +35,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            // For unauthenticated requests → 401
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.setContentType("application/json");
-                            response.getWriter()
-                                    .write("{\"error\":\"Unauthorized: " + authException.getMessage() + "\"}");
+                        .authenticationEntryPoint((req, res, authEx) -> {
+                            // Do nothing – JwtAuthenticationFilter already wrote the error
                         })
-                        .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            // For forbidden requests → 403
-                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                            response.setContentType("application/json");
-                            response.getWriter()
-                                    .write("{\"error\":\"Forbidden: " + accessDeniedException.getMessage() + "\"}");
+                        .accessDeniedHandler((req, res, accessDeniedEx) -> {
+                            // Do nothing – let your filter / GlobalExceptionHandler decide
                         }))
+
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -60,7 +51,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:5174", "http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
         config.setAllowCredentials(true);
