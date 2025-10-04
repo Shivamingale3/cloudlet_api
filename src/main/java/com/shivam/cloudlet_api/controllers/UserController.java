@@ -1,5 +1,6 @@
 package com.shivam.cloudlet_api.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,10 +12,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shivam.cloudlet_api.dto.Response;
 import com.shivam.cloudlet_api.entities.User;
+import com.shivam.cloudlet_api.services.UserService;
 
 @RestController
 @RequestMapping("api/users")
 public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    @GetMapping("")
+    public ResponseEntity<Response> getAllUsers() {
+        return ResponseEntity.ok(new Response(HttpStatus.OK, "Fetched all users!", userService.findAll()));
+    }
 
     @GetMapping("/verify")
     public ResponseEntity<Response> authUser(@AuthenticationPrincipal User user) {

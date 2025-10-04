@@ -1,5 +1,6 @@
 package com.shivam.cloudlet_api.services;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,17 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    public List<User> findAll() {
+        try {
+            return userRepository.findAll();
+        } catch (Exception e) {
+            throw new CustomException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to retrieve users",
+                    e);
+        }
+    }
 
     public User create(User userData) {
         try {
