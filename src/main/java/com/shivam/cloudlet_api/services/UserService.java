@@ -8,9 +8,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.shivam.cloudlet_api.dto.EmailDetails;
+import com.shivam.cloudlet_api.entities.Token;
 import com.shivam.cloudlet_api.entities.User;
 import com.shivam.cloudlet_api.exceptions.CustomException;
 import com.shivam.cloudlet_api.repositories.UserRepository;
+import com.shivam.cloudlet_api.utilities.EmailTemplateUtil;
 
 @Service
 public class UserService {
@@ -20,6 +23,12 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private EmailServiceImpl emailService;
 
     public List<User> findAll() {
         try {
@@ -44,6 +53,21 @@ public class UserService {
             throw new CustomException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "Failed to create user",
+                    e);
+        }
+    }
+
+    public void inviteUser(String userId, String email) {
+        try {
+            Token token = tokenService.createToken(userId);
+            String link = tokenService.generateInvitationUrl(token.getToken());
+            emailService.sendHtmlMail(EmailDetails.builder().recipient(email)
+                    .msgBody(EmailTemplateUtil.buildAccountInvitationEmail(userId, link))
+                    .subject("Invitation | Cloudlet").build());
+        } catch (Exception e) {
+            throw new CustomException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to invite user",
                     e);
         }
     }

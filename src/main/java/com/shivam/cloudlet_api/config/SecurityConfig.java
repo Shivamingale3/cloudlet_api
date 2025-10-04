@@ -1,5 +1,6 @@
 package com.shivam.cloudlet_api.config;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.shivam.cloudlet_api.filters.JwtAuthenticationFilter;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -36,12 +39,11 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, authEx) -> {
-                            // Do nothing – JwtAuthenticationFilter already wrote the error
+                            writeJsonError(res, 401, "Unauthorized", "Authentication required");
                         })
                         .accessDeniedHandler((req, res, accessDeniedEx) -> {
-                            // Do nothing – let your filter / GlobalExceptionHandler decide
+                            writeJsonError(res, 403, "Forbidden", "Access denied");
                         }))
-
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -59,5 +61,15 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+    private void writeJsonError(HttpServletResponse res, int status, String error, String message)
+            throws IOException {
+        res.setStatus(status);
+        res.setContentType("application/json");
+        String json = String.format(
+                "{\"status\": %d, \"error\": \"%s\", \"message\": \"%s\", \"timestamp\": \"%s\"}",
+                status, error, message, java.time.LocalDateTime.now());
+        res.getWriter().write(json);
     }
 }

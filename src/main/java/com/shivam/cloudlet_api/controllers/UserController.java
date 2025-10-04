@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shivam.cloudlet_api.dto.Response;
+import com.shivam.cloudlet_api.dto.users.CreateUserDto;
 import com.shivam.cloudlet_api.entities.User;
 import com.shivam.cloudlet_api.services.UserService;
 
@@ -26,16 +27,23 @@ public class UserController {
         return ResponseEntity.ok(new Response(HttpStatus.OK, "Fetched all users!", userService.findAll()));
     }
 
+    @PostMapping("")
+    public ResponseEntity<Response> createUser(@RequestBody CreateUserDto userDetails) {
+        User createdUser = userService.create(User.builder()
+                .username(userDetails.getEmail())
+                .email(userDetails.getEmail())
+                .role(userDetails.getRole())
+                .enabled(false)
+                .build());
+
+        userService.inviteUser(createdUser.getUserId(), createdUser.getEmail());
+        return ResponseEntity.ok()
+                .body(new Response(HttpStatus.CREATED, "User created and invitation link set!", null));
+    }
+
     @GetMapping("/verify")
     public ResponseEntity<Response> authUser(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(new Response(HttpStatus.OK, "User authenticated!", user));
-    }
-
-    @PostMapping("/create")
-    public String create(@RequestBody String entity) {
-        // TODO: process POST request
-
-        return entity;
     }
 
 }

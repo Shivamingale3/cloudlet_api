@@ -58,7 +58,7 @@ public class AuthService {
             // Hash password and save user
             String hashedPassword = passwordEncoder.encode(userData.getPassword());
             userData.setPassword(hashedPassword);
-
+            userData.setEnabled(true);
             User createdUser = userService.create(userData);
 
             // Set JWT tokens in cookies after successful registration

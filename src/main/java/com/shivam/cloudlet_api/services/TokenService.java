@@ -65,6 +65,10 @@ public class TokenService {
         return frontendUrl + "/auth/reset-password?userId=" + userId + "&token=" + token;
     }
 
+    public String generateInvitationUrl(String token) {
+        return frontendUrl + "/auth/complete-profile?&token=" + token;
+    }
+
     public void verifyToken(String userId, String token) {
         Token tokenObj = this.getByUserIdAndToken(userId, token);
 
