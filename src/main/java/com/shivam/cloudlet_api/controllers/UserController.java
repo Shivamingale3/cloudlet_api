@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shivam.cloudlet_api.dto.Response;
-import com.shivam.cloudlet_api.models.User;
+import com.shivam.cloudlet_api.entities.User;
 
 @RestController
 @RequestMapping("api/users")

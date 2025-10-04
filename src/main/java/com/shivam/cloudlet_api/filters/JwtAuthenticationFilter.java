@@ -10,8 +10,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.shivam.cloudlet_api.entities.User;
 import com.shivam.cloudlet_api.exceptions.CustomException;
-import com.shivam.cloudlet_api.models.User;
 import com.shivam.cloudlet_api.repositories.UserRepository;
 import com.shivam.cloudlet_api.services.JwtTokenService;
 

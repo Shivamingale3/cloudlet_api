@@ -7,8 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.shivam.cloudlet_api.entities.User;
 import com.shivam.cloudlet_api.exceptions.CustomException;
-import com.shivam.cloudlet_api.models.User;
 import com.shivam.cloudlet_api.repositories.UserRepository;
 
 @Service

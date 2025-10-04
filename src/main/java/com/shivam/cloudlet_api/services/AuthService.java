@@ -5,12 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.shivam.cloudlet_api.dto.EmailDetails;
 import com.shivam.cloudlet_api.dto.LoginRequest;
 import com.shivam.cloudlet_api.dto.ResetPasswordRequest;
+import com.shivam.cloudlet_api.entities.Token;
+import com.shivam.cloudlet_api.entities.User;
 import com.shivam.cloudlet_api.exceptions.CustomException;
-import com.shivam.cloudlet_api.models.EmailDetails;
-import com.shivam.cloudlet_api.models.Token;
-import com.shivam.cloudlet_api.models.User;
 import com.shivam.cloudlet_api.utilities.EmailTemplateUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -62,7 +62,7 @@ public class AuthService {
             User createdUser = userService.create(userData);
 
             // Set JWT tokens in cookies after successful registration
-            jwtTokenService.setTokensInCookies(response, createdUser.getId());
+            jwtTokenService.setTokensInCookies(response, createdUser.getUserId());
 
             // Remove password from response
             createdUser.setPassword(null);
@@ -109,7 +109,7 @@ public class AuthService {
             }
 
             // Set JWT tokens in cookies
-            jwtTokenService.setTokensInCookies(response, user.getId());
+            jwtTokenService.setTokensInCookies(response, user.getUserId());
 
             // Remove password from response
             user.setPassword(null);
@@ -143,13 +143,13 @@ public class AuthService {
                 .orElseThrow(() -> new CustomException(
                         HttpStatus.NOT_FOUND,
                         "User not found"));
-        Token generatedToken = tokenService.createToken(user.getId());
-        String url = tokenService.generateTokenUrl(user.getId(), generatedToken.getToken());
+        Token generatedToken = tokenService.createToken(user.getUserId());
+        String url = tokenService.generateTokenUrl(user.getUserId(), generatedToken.getToken());
         String emailBody = EmailTemplateUtil.buildResetPasswordEmail(user.getUsername(), url);
         EmailDetails emailDetails = new EmailDetails(user.getEmail(), emailBody, "Reset Password Link", null);
         Boolean result = emailService.sendHtmlMail(emailDetails);
         if (result == false) {
-            tokenService.delete(generatedToken.getId());
+            tokenService.delete(generatedToken.getTokenId());
             throw new CustomException(HttpStatus.CONFLICT, "Failed to send email! Try again!", null);
         }
     }

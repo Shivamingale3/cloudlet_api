@@ -1,6 +1,6 @@
 package com.shivam.cloudlet_api.services;
 
-import com.shivam.cloudlet_api.models.EmailDetails;
+import com.shivam.cloudlet_api.dto.EmailDetails;
 
 import jakarta.mail.MessagingException;
 

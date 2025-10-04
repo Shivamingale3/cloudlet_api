@@ -1,4 +1,4 @@
-package com.shivam.cloudlet_api.models;
+package com.shivam.cloudlet_api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

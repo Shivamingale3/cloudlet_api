@@ -1,6 +1,6 @@
 package com.shivam.cloudlet_api.wrappers;
 
-import com.shivam.cloudlet_api.models.User;
+import com.shivam.cloudlet_api.entities.User;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;

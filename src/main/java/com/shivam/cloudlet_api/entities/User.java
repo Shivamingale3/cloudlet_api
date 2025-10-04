@@ -1,20 +1,25 @@
-package com.shivam.cloudlet_api.models;
+package com.shivam.cloudlet_api.entities;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.shivam.cloudlet_api.enums.UserRole;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,29 +27,38 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "users")
+@Entity
+@Table(name = "users")
 public class User implements UserDetails {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String userId;
 
-    @Indexed(unique = true)
+    @Column(nullable = false, unique = true)
     private String username;
 
-    @Indexed(unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserRole role;
 
     private String avatar;
 
-    @CreatedDate
-    private Date createdAt;
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
 
-    @LastModifiedDate
-    private Date updatedAt;
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private Instant updatedAt;
+
+    // --- UserDetails implementation ---
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -58,7 +72,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username; // or id
+        return username;
     }
 
     @Override
@@ -80,5 +94,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }

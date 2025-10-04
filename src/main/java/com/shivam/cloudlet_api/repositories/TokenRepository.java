@@ -3,14 +3,14 @@ package com.shivam.cloudlet_api.repositories;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
-import com.shivam.cloudlet_api.models.Token;
+import com.shivam.cloudlet_api.entities.Token;
 
 @Repository
-public interface TokenRepository extends MongoRepository<Token, String> {
+public interface TokenRepository extends JpaRepository<Token, String> {
     Optional<Token> findByUserIdAndToken(String userId, String token);
 
     void deleteByUserIdAndToken(String userId, String token);

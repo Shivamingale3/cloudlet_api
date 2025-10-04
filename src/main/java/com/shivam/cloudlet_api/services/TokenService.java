@@ -1,8 +1,8 @@
 package com.shivam.cloudlet_api.services;
 
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.shivam.cloudlet_api.entities.Token;
 import com.shivam.cloudlet_api.exceptions.CustomException;
-import com.shivam.cloudlet_api.models.Token;
 import com.shivam.cloudlet_api.repositories.TokenRepository;
 
 @Service
@@ -50,9 +50,6 @@ public class TokenService {
         Token token = new Token();
         token.setUserId(userId);
         token.setToken(this.generateRandomTokenString(32));
-        Date now = new Date();
-        token.setCreatedAt(now);
-        token.setExpireAt(new Date(now.getTime() + 15 * 60 * 1000));
         return tokenRepository.save(token);
     }
 
@@ -70,8 +67,9 @@ public class TokenService {
 
     public void verifyToken(String userId, String token) {
         Token tokenObj = this.getByUserIdAndToken(userId, token);
-        if (tokenObj.getExpireAt().before(new Date())) {
-            this.delete(tokenObj.getId());
+
+        if (tokenObj.getExpireAt().isBefore(Instant.now())) {
+            this.delete(tokenObj.getTokenId());
             throw new CustomException(HttpStatus.BAD_REQUEST, "Link expired. Request email again!");
         }
     }
@@ -85,7 +83,7 @@ public class TokenService {
 
         // filter only non-expired tokens
         long activeTokens = tokens.stream()
-                .filter(token -> token.getExpireAt().after(new Date()))
+                .filter(token -> token.getExpireAt().isAfter(Instant.now()))
                 .count();
 
         if (activeTokens >= 3) {

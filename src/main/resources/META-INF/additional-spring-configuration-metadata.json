@@ -1,0 +1,52 @@
+{"properties": [
+  {
+    "name": "frontend.url",
+    "type": "java.lang.String",
+    "description": "A description for 'frontend.url'"
+  },
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.secret'"
+  },
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.secret'"
+  },
+  {
+    "name": "jwt.auth-expiration",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.auth-expiration'"
+  },
+  {
+    "name": "jwt.refresh-expiration",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.refresh-expiration'"
+  },
+  {
+    "name": "jwt.secure",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.secure'"
+  },
+  {
+    "name": "jwt.domain",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.domain'"
+  },
+  {
+    "name": "spring.datasource.jpa.hibernate.ddl-auto",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.jpa.hibernate.ddl-auto'"
+  },
+  {
+    "name": "spring.datasource.jpa.hibernate.show-sql",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.jpa.hibernate.show-sql'"
+  },
+  {
+    "name": "spring.datasource.jpa.properties.hibernate.format_sql",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.jpa.properties.hibernate.format_sql'"
+  }
+]}

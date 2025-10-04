@@ -10,7 +10,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import com.shivam.cloudlet_api.models.EmailDetails;
+import com.shivam.cloudlet_api.dto.EmailDetails;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
