@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: StoreAPI
+    name: CloudletAPI
 
   data:
     mongodb:
