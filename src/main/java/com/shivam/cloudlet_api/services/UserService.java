@@ -43,12 +43,12 @@ public class UserService {
 
     public User create(User userData) {
         try {
+            if (userRepository.existsByEmail(userData.getEmail())) {
+                throw new CustomException(
+                        HttpStatus.BAD_REQUEST,
+                        "User already exists with email: " + userData.getEmail());
+            }
             return userRepository.save(userData);
-        } catch (org.springframework.dao.DuplicateKeyException e) {
-            throw new CustomException(
-                    HttpStatus.CONFLICT,
-                    "User already exists with this username or email",
-                    e);
         } catch (Exception e) {
             throw new CustomException(
                     HttpStatus.INTERNAL_SERVER_ERROR,

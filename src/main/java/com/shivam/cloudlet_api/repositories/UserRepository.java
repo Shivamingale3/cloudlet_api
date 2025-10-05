@@ -10,4 +10,6 @@ import com.shivam.cloudlet_api.entities.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByUsernameOrEmail(String username, String email);
+
+    boolean existsByEmail(String email);
 }

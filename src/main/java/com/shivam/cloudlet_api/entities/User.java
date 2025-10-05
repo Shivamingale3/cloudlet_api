@@ -53,6 +53,7 @@ public class User implements UserDetails {
     private String avatar;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private UserStatus status;
 
     @CreationTimestamp
