@@ -51,6 +51,6 @@ public class Token {
         if (createdAt == null) {
             createdAt = Instant.now();
         }
-        expireAt = createdAt.plus(10, ChronoUnit.MINUTES);
+        expireAt = createdAt.plus(1, ChronoUnit.DAYS);
     }
 }

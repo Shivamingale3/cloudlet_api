@@ -62,7 +62,7 @@ public class UserService {
             Token token = tokenService.createToken(userId);
             String link = tokenService.generateInvitationUrl(token.getToken());
             emailService.sendHtmlMail(EmailDetails.builder().recipient(email)
-                    .msgBody(EmailTemplateUtil.buildAccountInvitationEmail(userId, link))
+                    .msgBody(EmailTemplateUtil.buildAccountInvitationEmail(email, link))
                     .subject("Invitation | Cloudlet").build());
         } catch (Exception e) {
             throw new CustomException(
@@ -70,6 +70,13 @@ public class UserService {
                     "Failed to invite user",
                     e);
         }
+    }
+
+    public void checkUsername(String username) {
+        if (userRepository.existsByUsernameAllIgnoringCase(username)) {
+            throw new CustomException(HttpStatus.CONFLICT, "Username is already taken!");
+        }
+        return;
     }
 
     public Optional<User> findByUsernameOrEmail(String userName, String email) {

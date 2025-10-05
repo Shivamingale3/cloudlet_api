@@ -20,10 +20,6 @@ public class TokenService {
     @Autowired
     private TokenRepository tokenRepository;
 
-    TokenService(TokenRepository tokenRepository) {
-        this.tokenRepository = tokenRepository;
-    }
-
     @Value("${frontend.url}")
     private String frontendUrl;
 
@@ -66,7 +62,7 @@ public class TokenService {
     }
 
     public String generateInvitationUrl(String token) {
-        return frontendUrl + "/auth/complete-profile?&token=" + token;
+        return frontendUrl + "/auth/complete-profile?token=" + token;
     }
 
     public void verifyToken(String userId, String token) {
@@ -76,6 +72,16 @@ public class TokenService {
             this.delete(tokenObj.getTokenId());
             throw new CustomException(HttpStatus.BAD_REQUEST, "Link expired. Request email again!");
         }
+    }
+
+    public String verifyInvitationTokenReturnUserId(String token) {
+        Token tokenObj = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "Invalid link, request link again!"));
+        if (tokenObj.getExpireAt().isBefore(Instant.now())) {
+            tokenRepository.delete(tokenObj);
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Link expired. Request link again!");
+        }
+        return tokenObj.getUserId();
     }
 
     public void deleteByUserId(String userId) {

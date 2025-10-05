@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,8 @@ import com.shivam.cloudlet_api.dto.Response;
 import com.shivam.cloudlet_api.dto.VerifyResetPasswordTokenRequest;
 import com.shivam.cloudlet_api.entities.User;
 import com.shivam.cloudlet_api.services.AuthService;
+import com.shivam.cloudlet_api.services.TokenService;
+import com.shivam.cloudlet_api.services.UserService;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -25,7 +28,13 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AuthController {
 
     @Autowired
+    private TokenService tokenService;
+
+    @Autowired
     private AuthService authService;
+
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/register")
     public ResponseEntity<Response> registerUser(@RequestBody User userData, HttpServletResponse response) {
@@ -61,6 +70,19 @@ public class AuthController {
     public ResponseEntity<Response> resetPassword(@RequestBody ResetPasswordRequest requestBody) {
         authService.resetPassword(requestBody);
         return ResponseEntity.ok(new Response(HttpStatus.OK, "Password reset successfully!", null));
+    }
+
+    @GetMapping("/check-username/{username}")
+    public ResponseEntity<Response> checkUsername(@PathVariable String username) {
+        userService.checkUsername(username);
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK, "Username Available", null));
+    }
+
+    @GetMapping("/verify-invitation/{token}")
+    public ResponseEntity<Response> verifyInvitation(@PathVariable String token) {
+        String userId = this.tokenService.verifyInvitationTokenReturnUserId(token);
+        User userData = this.userService.findById(userId);
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK, "Token valid", userData));
     }
 
 }
