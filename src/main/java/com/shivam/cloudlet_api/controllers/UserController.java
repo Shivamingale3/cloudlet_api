@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.shivam.cloudlet_api.dto.Response;
 import com.shivam.cloudlet_api.dto.users.CreateUserDto;
 import com.shivam.cloudlet_api.entities.User;
+import com.shivam.cloudlet_api.enums.UserStatus;
 import com.shivam.cloudlet_api.services.UserService;
 
 @RestController
@@ -33,7 +34,7 @@ public class UserController {
                 .username(userDetails.getEmail())
                 .email(userDetails.getEmail())
                 .role(userDetails.getRole())
-                .enabled(false)
+                .status(UserStatus.INVITED)
                 .build());
 
         userService.inviteUser(createdUser.getUserId(), createdUser.getEmail());

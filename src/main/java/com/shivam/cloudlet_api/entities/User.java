@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.shivam.cloudlet_api.enums.UserRole;
+import com.shivam.cloudlet_api.enums.UserStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -51,7 +52,8 @@ public class User implements UserDetails {
 
     private String avatar;
 
-    private Boolean enabled;
+    @Column(nullable = false)
+    private UserStatus status;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -95,6 +97,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return enabled;
+        return status == UserStatus.ACTIVE;
     }
 }

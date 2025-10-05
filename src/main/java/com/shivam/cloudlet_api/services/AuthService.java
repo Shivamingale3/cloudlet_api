@@ -10,6 +10,7 @@ import com.shivam.cloudlet_api.dto.LoginRequest;
 import com.shivam.cloudlet_api.dto.ResetPasswordRequest;
 import com.shivam.cloudlet_api.entities.Token;
 import com.shivam.cloudlet_api.entities.User;
+import com.shivam.cloudlet_api.enums.UserStatus;
 import com.shivam.cloudlet_api.exceptions.CustomException;
 import com.shivam.cloudlet_api.utilities.EmailTemplateUtil;
 
@@ -58,7 +59,7 @@ public class AuthService {
             // Hash password and save user
             String hashedPassword = passwordEncoder.encode(userData.getPassword());
             userData.setPassword(hashedPassword);
-            userData.setEnabled(true);
+            userData.setStatus(UserStatus.ACTIVE);
             User createdUser = userService.create(userData);
 
             // Set JWT tokens in cookies after successful registration
