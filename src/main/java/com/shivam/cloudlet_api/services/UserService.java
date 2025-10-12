@@ -61,6 +61,9 @@ public class UserService {
 
     public void inviteUser(String userId, String email) {
         try {
+            if (tokenService.tokenExists(userId)) {
+                tokenService.deleteByUserId(userId);
+            }
             Token token = tokenService.createToken(userId);
             String link = tokenService.generateInvitationUrl(token.getToken());
             emailService.sendHtmlMail(EmailDetails.builder().recipient(email)
