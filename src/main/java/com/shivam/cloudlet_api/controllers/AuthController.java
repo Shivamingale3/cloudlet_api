@@ -16,6 +16,7 @@ import com.shivam.cloudlet_api.dto.LoginRequest;
 import com.shivam.cloudlet_api.dto.ResetPasswordRequest;
 import com.shivam.cloudlet_api.dto.Response;
 import com.shivam.cloudlet_api.dto.VerifyResetPasswordTokenRequest;
+import com.shivam.cloudlet_api.dto.users.CompleteProfileDto;
 import com.shivam.cloudlet_api.entities.User;
 import com.shivam.cloudlet_api.services.AuthService;
 import com.shivam.cloudlet_api.services.TokenService;
@@ -83,6 +84,15 @@ public class AuthController {
         String userId = this.tokenService.verifyInvitationTokenReturnUserId(token);
         User userData = this.userService.findById(userId);
         return ResponseEntity.ok().body(new Response(HttpStatus.OK, "Token valid", userData));
+    }
+
+    @PatchMapping("/complete-profile")
+    public ResponseEntity<Response> completeProfile(
+            @RequestBody CompleteProfileDto profile) {
+        String userId = tokenService.verifyInvitationTokenReturnUserId(profile.getToken());
+        userService.completeProfile(profile, userId);
+        tokenService.deleteByUserId(userId);
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK, "Profile completed successfully!", null));
     }
 
 }
