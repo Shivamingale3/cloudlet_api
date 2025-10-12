@@ -9,8 +9,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.shivam.cloudlet_api.dto.EmailDetails;
+import com.shivam.cloudlet_api.dto.users.CompleteProfileDto;
 import com.shivam.cloudlet_api.entities.Token;
 import com.shivam.cloudlet_api.entities.User;
+import com.shivam.cloudlet_api.enums.UserStatus;
 import com.shivam.cloudlet_api.exceptions.CustomException;
 import com.shivam.cloudlet_api.repositories.UserRepository;
 import com.shivam.cloudlet_api.utilities.EmailTemplateUtil;
@@ -126,6 +128,44 @@ public class UserService {
             throw new CustomException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "Failed to update user",
+                    e);
+        }
+    }
+
+    public void updateUserStatus(UserStatus userStatus, String userId) {
+        try {
+            User existingUser = findById(userId);
+            existingUser.setStatus(userStatus);
+            userRepository.save(existingUser);
+            return;
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CustomException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to update user status",
+                    e);
+        }
+    }
+
+    public void completeProfile(CompleteProfileDto data, String userId) {
+        try {
+            User existingUser = findById(userId);
+            if (existingUser.getStatus() != UserStatus.INVITED) {
+                throw new CustomException(HttpStatus.BAD_REQUEST, "Profile already completed!");
+            }
+            existingUser.setPassword(passwordEncoder.encode(data.getPassword()));
+            existingUser.setAvatar(data.getAvatar());
+            existingUser.setUsername(data.getUsername());
+            existingUser.setStatus(UserStatus.ACTIVE);
+            userRepository.save(existingUser);
+            return;
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CustomException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to complete profile",
                     e);
         }
     }

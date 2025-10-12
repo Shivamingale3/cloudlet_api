@@ -6,10 +6,12 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.shivam.cloudlet_api.entities.Token;
 
 @Repository
+@Transactional
 public interface TokenRepository extends JpaRepository<Token, String> {
     Optional<Token> findByUserIdAndToken(String userId, String token);
 

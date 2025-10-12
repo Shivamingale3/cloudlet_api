@@ -85,7 +85,11 @@ public class TokenService {
     }
 
     public void deleteByUserId(String userId) {
-        tokenRepository.deleteByUserId(userId);
+        try {
+            tokenRepository.deleteByUserId(userId);
+        } catch (Exception e) {
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
     }
 
     public void checkTokenLimit(String userId) {
@@ -99,6 +103,15 @@ public class TokenService {
         if (activeTokens >= 3) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "Too many requests. Please try again later.");
         }
+    }
+
+    public boolean tokenExists(String userId) {
+        return tokenRepository.findByUserId(userId).size() > 0;
+    }
+
+    public void deleteExistingTokens(String userId) {
+        tokenRepository.deleteByUserId(userId);
+        return;
     }
 
 }
