@@ -82,6 +82,7 @@ public class UserController {
             throw new CustomException(HttpStatus.FORBIDDEN, "This action cannot be completed for other user!");
         }
         userService.completeProfile(profile, userId);
+        tokenService.deleteByUserId(userId);
         return ResponseEntity.ok().body(new Response(HttpStatus.OK, "Profile completed successfully!", null));
     }
 
