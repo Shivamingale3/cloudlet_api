@@ -12,6 +12,7 @@ import com.shivam.cloudlet_api.dto.EmailDetails;
 import com.shivam.cloudlet_api.dto.users.CompleteProfileDto;
 import com.shivam.cloudlet_api.entities.Token;
 import com.shivam.cloudlet_api.entities.User;
+import com.shivam.cloudlet_api.enums.UserRole;
 import com.shivam.cloudlet_api.enums.UserStatus;
 import com.shivam.cloudlet_api.exceptions.CustomException;
 import com.shivam.cloudlet_api.repositories.UserRepository;
@@ -131,6 +132,19 @@ public class UserService {
             throw new CustomException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "Failed to update user",
+                    e);
+        }
+    }
+
+    public void updateUserRole(String userId, UserRole role) {
+        try {
+            User existingUser = findById(userId);
+            existingUser.setRole(role);
+            userRepository.save(existingUser);
+        } catch (Exception e) {
+            throw new CustomException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to update user status",
                     e);
         }
     }

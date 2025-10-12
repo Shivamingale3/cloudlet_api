@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.shivam.cloudlet_api.dto.Response;
 import com.shivam.cloudlet_api.dto.users.CompleteProfileDto;
 import com.shivam.cloudlet_api.dto.users.CreateUserDto;
+import com.shivam.cloudlet_api.dto.users.UpdateRoleDto;
 import com.shivam.cloudlet_api.dto.users.UpdateStatusDto;
 import com.shivam.cloudlet_api.entities.User;
 import com.shivam.cloudlet_api.enums.UserStatus;
@@ -73,6 +74,12 @@ public class UserController {
     public ResponseEntity<Response> updateStatus(@PathVariable String userId, @RequestBody UpdateStatusDto data) {
         userService.updateUserStatus(data.getStatus(), userId);
         return ResponseEntity.ok().body(new Response(HttpStatus.OK, "Status updated successfully!", null));
+    }
+
+    @PutMapping("/role/{userId}")
+    public ResponseEntity<Response> updateRole(@PathVariable String userId, @RequestBody UpdateRoleDto role) {
+        userService.updateUserRole(userId, role.getRole());
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK, "Role updated successfully!", null));
     }
 
     @PatchMapping("{userId}")
