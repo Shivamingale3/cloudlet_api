@@ -42,7 +42,7 @@ public class LoggingFilter extends OncePerRequestFilter {
             long duration = System.currentTimeMillis() - start;
 
             // Log request
-            String reqBody = getRequestBody(wrappedRequest);
+            // String reqBody = getRequestBody(wrappedRequest);
             log.info("Incoming {} {}{} | body={} | from={} ",
                     request.getMethod(),
                     request.getRequestURI(),
@@ -61,12 +61,12 @@ public class LoggingFilter extends OncePerRequestFilter {
         }
     }
 
-    private String getRequestBody(ContentCachingRequestWrapper request) {
-        byte[] buf = request.getContentAsByteArray();
-        if (buf.length == 0)
-            return "";
-        return new String(buf, 0, buf.length, StandardCharsets.UTF_8);
-    }
+    // private String getRequestBody(ContentCachingRequestWrapper request) {
+    // byte[] buf = request.getContentAsByteArray();
+    // if (buf.length == 0)
+    // return "";
+    // return new String(buf, 0, buf.length, StandardCharsets.UTF_8);
+    // }
 
     private String getResponseBody(ContentCachingResponseWrapper response) {
         byte[] buf = response.getContentAsByteArray();
