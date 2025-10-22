@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shivam.cloudlet_api.dto.Response;
-import com.shivam.cloudlet_api.dto.users.CreateUserDto;
-import com.shivam.cloudlet_api.dto.users.UpdateRoleDto;
-import com.shivam.cloudlet_api.dto.users.UpdateStatusDto;
+import com.shivam.cloudlet_api.dto.users.request.CreateUserDto;
+import com.shivam.cloudlet_api.dto.users.request.UpdateRoleDto;
+import com.shivam.cloudlet_api.dto.users.request.UpdateStatusDto;
 import com.shivam.cloudlet_api.entities.User;
 import com.shivam.cloudlet_api.enums.UserRole;
 import com.shivam.cloudlet_api.enums.UserStatus;

@@ -16,7 +16,7 @@ import com.shivam.cloudlet_api.dto.LoginRequest;
 import com.shivam.cloudlet_api.dto.ResetPasswordRequest;
 import com.shivam.cloudlet_api.dto.Response;
 import com.shivam.cloudlet_api.dto.VerifyResetPasswordTokenRequest;
-import com.shivam.cloudlet_api.dto.users.CompleteProfileDto;
+import com.shivam.cloudlet_api.dto.users.request.CompleteProfileDto;
 import com.shivam.cloudlet_api.entities.User;
 import com.shivam.cloudlet_api.services.AuthService;
 import com.shivam.cloudlet_api.services.TokenService;

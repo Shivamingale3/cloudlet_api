@@ -1,4 +1,4 @@
-package com.shivam.cloudlet_api.dto.users;
+package com.shivam.cloudlet_api.dto.users.request;
 
 import com.shivam.cloudlet_api.enums.UserStatus;
 

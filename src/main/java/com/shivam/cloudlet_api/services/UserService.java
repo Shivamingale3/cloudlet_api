@@ -9,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.shivam.cloudlet_api.dto.EmailDetails;
-import com.shivam.cloudlet_api.dto.users.CompleteProfileDto;
+import com.shivam.cloudlet_api.dto.users.request.CompleteProfileDto;
 import com.shivam.cloudlet_api.entities.Token;
 import com.shivam.cloudlet_api.entities.User;
 import com.shivam.cloudlet_api.enums.UserRole;
@@ -210,6 +210,7 @@ public class UserService {
             User existingUser = findById(id);
             existingUser.setPassword(passwordEncoder.encode(password));
             userRepository.save(existingUser);
+
         } catch (CustomException e) {
             throw e;
         } catch (Exception e) {

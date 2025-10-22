@@ -8,8 +8,11 @@ import org.springframework.stereotype.Service;
 import com.shivam.cloudlet_api.dto.EmailDetails;
 import com.shivam.cloudlet_api.dto.LoginRequest;
 import com.shivam.cloudlet_api.dto.ResetPasswordRequest;
+import com.shivam.cloudlet_api.entities.ActivityLog;
 import com.shivam.cloudlet_api.entities.Token;
 import com.shivam.cloudlet_api.entities.User;
+import com.shivam.cloudlet_api.enums.ActivityTarget;
+import com.shivam.cloudlet_api.enums.ActivityType;
 import com.shivam.cloudlet_api.enums.UserStatus;
 import com.shivam.cloudlet_api.exceptions.CustomException;
 import com.shivam.cloudlet_api.utilities.EmailTemplateUtil;
@@ -33,6 +36,9 @@ public class AuthService {
 
     @Autowired
     private EmailServiceImpl emailService;
+
+    @Autowired
+    private ActivityService activityService;
 
     public User registerUser(User userData, HttpServletResponse response) {
         // Input validation
@@ -114,7 +120,7 @@ public class AuthService {
 
             // Remove password from response
             user.setPassword(null);
-
+            authActivityLog(user, ActivityType.LOGGED_IN, user.getUsername() + " logged in", ActivityTarget.AUTH);
             return user;
 
         } catch (CustomException e) {
@@ -162,8 +168,14 @@ public class AuthService {
     public void resetPassword(ResetPasswordRequest request) {
         try {
             tokenService.verifyToken(request.getUserId(), request.getToken());
+            User requestingUser = userService.findById(request.getUserId());
+            if (requestingUser == null) {
+                throw new CustomException(HttpStatus.NOT_FOUND, "User not found");
+            }
             userService.updatePassword(request.getUserId(), request.getPassword());
             tokenService.deleteByUserId(request.getUserId());
+            authActivityLog(requestingUser, ActivityType.RESET_PASSWORD,
+                    requestingUser.getUsername() + " reset their password", ActivityTarget.AUTH);
         } catch (Exception e) {
             throw new CustomException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
@@ -172,4 +184,7 @@ public class AuthService {
         }
     }
 
+    public void authActivityLog(User actor, ActivityType activityType, String log, ActivityTarget activityTarget) {
+        activityService.saveActivityLog(ActivityLog.builder().actor(actor).log(log).activityType(activityType).build());
+    }
 }

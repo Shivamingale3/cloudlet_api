@@ -1,4 +1,4 @@
-package com.shivam.cloudlet_api.dto.users;
+package com.shivam.cloudlet_api.dto.users.response;
 
 import java.util.Date;
 
