@@ -11,7 +11,6 @@ import com.shivam.cloudlet_api.dto.ResetPasswordRequest;
 import com.shivam.cloudlet_api.entities.ActivityLog;
 import com.shivam.cloudlet_api.entities.Token;
 import com.shivam.cloudlet_api.entities.User;
-import com.shivam.cloudlet_api.enums.ActivityTarget;
 import com.shivam.cloudlet_api.enums.ActivityType;
 import com.shivam.cloudlet_api.enums.UserStatus;
 import com.shivam.cloudlet_api.exceptions.CustomException;
@@ -120,7 +119,7 @@ public class AuthService {
 
             // Remove password from response
             user.setPassword(null);
-            authActivityLog(user, ActivityType.LOGGED_IN, user.getUsername() + " logged in", ActivityTarget.AUTH);
+            authActivityLog(user, ActivityType.LOGGED_IN, user.getUsername() + " logged in");
             return user;
 
         } catch (CustomException e) {
@@ -175,7 +174,7 @@ public class AuthService {
             userService.updatePassword(request.getUserId(), request.getPassword());
             tokenService.deleteByUserId(request.getUserId());
             authActivityLog(requestingUser, ActivityType.RESET_PASSWORD,
-                    requestingUser.getUsername() + " reset their password", ActivityTarget.AUTH);
+                    requestingUser.getUsername() + " reset their password");
         } catch (Exception e) {
             throw new CustomException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
@@ -184,7 +183,7 @@ public class AuthService {
         }
     }
 
-    public void authActivityLog(User actor, ActivityType activityType, String log, ActivityTarget activityTarget) {
+    public void authActivityLog(User actor, ActivityType activityType, String log) {
         activityService.saveActivityLog(ActivityLog.builder().actor(actor).log(log).activityType(activityType).build());
     }
 }

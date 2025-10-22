@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 
 import com.shivam.cloudlet_api.dto.EmailDetails;
 import com.shivam.cloudlet_api.dto.users.request.CompleteProfileDto;
+import com.shivam.cloudlet_api.entities.ActivityLog;
 import com.shivam.cloudlet_api.entities.Token;
 import com.shivam.cloudlet_api.entities.User;
+import com.shivam.cloudlet_api.enums.ActivityType;
 import com.shivam.cloudlet_api.enums.UserRole;
 import com.shivam.cloudlet_api.enums.UserStatus;
 import com.shivam.cloudlet_api.exceptions.CustomException;
@@ -32,6 +34,9 @@ public class UserService {
 
     @Autowired
     private EmailServiceImpl emailService;
+
+    @Autowired
+    private ActivityService activityLogService;
 
     public List<User> findAll() {
         try {
@@ -136,11 +141,13 @@ public class UserService {
         }
     }
 
-    public void updateUserRole(String userId, UserRole role) {
+    public void updateUserRole(String userId, UserRole role, User requestingUser) {
         try {
             User existingUser = findById(userId);
             existingUser.setRole(role);
             userRepository.save(existingUser);
+            logUsersActivity(existingUser, ActivityType.MODIFIED,
+                    requestingUser.getUsername() + " changed " + existingUser.getUsername() + " role to " + role);
         } catch (Exception e) {
             throw new CustomException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
@@ -149,11 +156,13 @@ public class UserService {
         }
     }
 
-    public void updateUserStatus(UserStatus userStatus, String userId) {
+    public void updateUserStatus(UserStatus userStatus, String userId, User requestingUser) {
         try {
             User existingUser = findById(userId);
             existingUser.setStatus(userStatus);
             userRepository.save(existingUser);
+            logUsersActivity(existingUser, ActivityType.MODIFIED,
+                    requestingUser.getUsername() + userStatus + " user " + existingUser.getUsername());
             return;
         } catch (CustomException e) {
             throw e;
@@ -187,13 +196,16 @@ public class UserService {
         }
     }
 
-    public void delete(String id) {
+    public void delete(String id, User requestingUser) {
         try {
-            if (!userRepository.existsById(id)) {
+            User existingUser = findById(id);
+            if (existingUser == null) {
                 throw new CustomException(
                         HttpStatus.NOT_FOUND,
                         "User not found with id: " + id);
             }
+            logUsersActivity(existingUser, ActivityType.DELETED,
+                    requestingUser.getUsername() + " deleted user " + existingUser.getUsername());
             userRepository.deleteById(id);
         } catch (CustomException e) {
             throw e;
@@ -219,5 +231,13 @@ public class UserService {
                     "Failed to update password",
                     e);
         }
+    }
+
+    public void logUsersActivity(User actor, ActivityType activityType, String log) {
+        activityLogService.saveActivityLog(ActivityLog.builder()
+                .actor(actor)
+                .activityType(activityType)
+                .log(log)
+                .build());
     }
 }

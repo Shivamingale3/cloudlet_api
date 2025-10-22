@@ -18,6 +18,7 @@ import com.shivam.cloudlet_api.dto.users.request.CreateUserDto;
 import com.shivam.cloudlet_api.dto.users.request.UpdateRoleDto;
 import com.shivam.cloudlet_api.dto.users.request.UpdateStatusDto;
 import com.shivam.cloudlet_api.entities.User;
+import com.shivam.cloudlet_api.enums.ActivityType;
 import com.shivam.cloudlet_api.enums.UserRole;
 import com.shivam.cloudlet_api.enums.UserStatus;
 import com.shivam.cloudlet_api.exceptions.CustomException;
@@ -40,7 +41,8 @@ public class UserController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Response> createUser(@RequestBody CreateUserDto userDetails) {
+    public ResponseEntity<Response> createUser(@RequestBody CreateUserDto userDetails,
+            @AuthenticationPrincipal User requestingUser) {
         User createdUser = userService.create(User.builder()
                 .username(userDetails.getEmail())
                 .email(userDetails.getEmail())
@@ -49,6 +51,8 @@ public class UserController {
                 .build());
 
         userService.inviteUser(createdUser.getUserId(), createdUser.getEmail());
+        userService.logUsersActivity(requestingUser, ActivityType.CREATED,
+                requestingUser.getUsername() + " created user " + createdUser.getUsername());
         return ResponseEntity.ok()
                 .body(new Response(HttpStatus.CREATED, "User created and invitation link set!", null));
     }
@@ -74,7 +78,7 @@ public class UserController {
         if (!requestingUser.getRole().equals(UserRole.ADMIN)) {
             throw new CustomException(HttpStatus.FORBIDDEN, "Operation not allowed for this user!");
         }
-        userService.updateUserStatus(data.getStatus(), userId);
+        userService.updateUserStatus(data.getStatus(), userId, requestingUser);
         return ResponseEntity.ok().body(new Response(HttpStatus.OK, "Status updated successfully!", null));
     }
 
@@ -84,13 +88,14 @@ public class UserController {
         if (!requestingUser.getRole().equals(UserRole.ADMIN)) {
             throw new CustomException(HttpStatus.FORBIDDEN, "Operation not allowed for this user!");
         }
-        userService.updateUserRole(userId, role.getRole());
+        userService.updateUserRole(userId, role.getRole(), requestingUser);
         return ResponseEntity.ok().body(new Response(HttpStatus.OK, "Role updated successfully!", null));
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Response> deleteUser(@PathVariable String userId) {
-        userService.delete(userId);
+    public ResponseEntity<Response> deleteUser(@PathVariable String userId,
+            @AuthenticationPrincipal User requestingUser) {
+        userService.delete(userId, requestingUser);
         return ResponseEntity.ok(new Response(HttpStatus.OK, "User deleted!", null));
     }
 
