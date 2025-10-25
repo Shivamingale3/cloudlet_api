@@ -118,7 +118,6 @@ public class AuthService {
             jwtTokenService.setTokensInCookies(response, user.getUserId());
 
             // Remove password from response
-            user.setPassword(null);
             authActivityLog(user, ActivityType.LOGGED_IN, user.getUsername() + " logged in");
             return user;
 

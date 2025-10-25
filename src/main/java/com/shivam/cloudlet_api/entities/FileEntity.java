@@ -16,7 +16,7 @@ import lombok.*;
 @Table(name = "files", uniqueConstraints = {
     @UniqueConstraint(columnNames = { "owner_id", "logical_path" })
 })
-public class File {
+public class FileEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

@@ -40,7 +40,7 @@ public class ActivityLog {
 
   @ManyToOne
   @JoinColumn(name = "file_id", referencedColumnName = "fileId")
-  private File targetFile;
+  private FileEntity targetFile;
 
   @ManyToOne
   @JoinColumn(name = "folder_id", referencedColumnName = "folderId")

@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "folders", uniqueConstraints = {
-    @UniqueConstraint(columnNames = { "name", "bucket_id", "parent_id" })
+    @UniqueConstraint(columnNames = { "name", "parent_id" })
 })
 public class Folder {
 

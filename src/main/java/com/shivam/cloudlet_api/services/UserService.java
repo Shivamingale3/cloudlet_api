@@ -1,5 +1,6 @@
 package com.shivam.cloudlet_api.services;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.shivam.cloudlet_api.dto.EmailDetails;
 import com.shivam.cloudlet_api.dto.users.request.CompleteProfileDto;
+import com.shivam.cloudlet_api.dto.users.response.UserResponseDto;
 import com.shivam.cloudlet_api.entities.ActivityLog;
 import com.shivam.cloudlet_api.entities.Token;
 import com.shivam.cloudlet_api.entities.User;
@@ -239,5 +241,21 @@ public class UserService {
                 .activityType(activityType)
                 .log(log)
                 .build());
+    }
+
+    public UserResponseDto mapUserToDto(User user) {
+        if (user == null) {
+            return null;
+        }
+        return UserResponseDto.builder()
+                .id(user.getUserId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .password(null) // Never expose password in response
+                .role(user.getRole())
+                .avatar(user.getAvatar())
+                .createdAt(user.getCreatedAt() != null ? Date.from(user.getCreatedAt()) : null)
+                .updatedAt(user.getUpdatedAt() != null ? Date.from(user.getUpdatedAt()) : null)
+                .build();
     }
 }
