@@ -26,7 +26,7 @@ import com.shivam.cloudlet_api.services.TokenService;
 import com.shivam.cloudlet_api.services.UserService;
 
 @RestController
-@RequestMapping("api/users")
+@RequestMapping("api/v1/users")
 public class UserController {
 
     @Autowired

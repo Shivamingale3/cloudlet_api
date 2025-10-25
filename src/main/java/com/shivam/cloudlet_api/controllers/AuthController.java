@@ -25,7 +25,7 @@ import com.shivam.cloudlet_api.services.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
     @Autowired
