@@ -46,10 +46,6 @@ public class ActivityLog {
   @JoinColumn(name = "folder_id", referencedColumnName = "folderId")
   private Folder targetFolder;
 
-  @ManyToOne
-  @JoinColumn(name = "bucket_id", referencedColumnName = "bucketId")
-  private Bucket targetBucket;
-
   @Enumerated(EnumType.STRING)
   private ActivityType activityType;
 

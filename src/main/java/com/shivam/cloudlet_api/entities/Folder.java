@@ -37,11 +37,6 @@ public class Folder {
   @Column(nullable = false)
   private String name;
 
-  // Folder belongs to a specific bucket
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "bucket_id", nullable = false)
-  private Bucket bucket;
-
   // Optional parent folder (null means it's at the root of the bucket)
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "parent_id")
