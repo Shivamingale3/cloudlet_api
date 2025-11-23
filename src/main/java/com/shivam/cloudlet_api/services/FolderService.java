@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 
 import com.shivam.cloudlet_api.dto.folder.CreateFolderDto;
 import com.shivam.cloudlet_api.dto.folder.FolderResponseDto;
+import com.shivam.cloudlet_api.entities.ActivityLog;
 import com.shivam.cloudlet_api.entities.Folder;
 import com.shivam.cloudlet_api.entities.User;
+import com.shivam.cloudlet_api.enums.ActivityType;
 import com.shivam.cloudlet_api.enums.UserRole;
 import com.shivam.cloudlet_api.exceptions.CustomException;
 import com.shivam.cloudlet_api.repositories.FolderRepository;
@@ -23,6 +25,9 @@ public class FolderService {
 
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private ActivityService activityService;
 
   public List<FolderResponseDto> getAllFolders(User requestingUser) {
     if (requestingUser.getRole() == UserRole.ADMIN) {
@@ -109,13 +114,9 @@ public class FolderService {
         .build();
   }
 
-  public void createFolder(CreateFolderDto folderData, String userId, Boolean shared) {
-    User folderOwner = userService.findById(userId);
-    if (folderOwner == null) {
-      throw new CustomException(HttpStatus.NOT_FOUND, "No user found for this userId");
-    }
-    Folder folderToBeCreated = Folder.builder().name(folderData.getName()).owner(folderOwner)
-        .lastModifiedBy(folderOwner).shared(shared).build();
+  public void createFolder(CreateFolderDto folderData, User requestingUser, Boolean shared) {
+    Folder folderToBeCreated = Folder.builder().name(folderData.getName()).owner(requestingUser)
+        .lastModifiedBy(requestingUser).shared(shared).build();
 
     if (folderData.getParentId() != null && !folderData.getParentId().isBlank()
         && !folderData.getParentId().isEmpty()) {
@@ -125,7 +126,9 @@ public class FolderService {
       }
       folderToBeCreated.setParent(parentFolder);
     }
-    folderRepository.save(folderToBeCreated);
+    Folder createdFolder = folderRepository.save(folderToBeCreated);
+    logFolderActivity(requestingUser, createdFolder, ActivityType.CREATED,
+        requestingUser.getUsername() + " created Folder " + createdFolder.getName());
   }
 
   public void renameFolder(String folderId, String newName, User requestingUser) {
@@ -133,6 +136,8 @@ public class FolderService {
     checkFolderNameAvailability(newName, requestingUser, folder.getParent());
     folder.setName(newName);
     folderRepository.save(folder);
+    logFolderActivity(requestingUser, folder, ActivityType.MODIFIED,
+        requestingUser.getUsername() + " renamed folder " + folder.getName() + " to " + newName);
   }
 
   public void moveFolder(String folderId, String newParentId, User requestingUser) {
@@ -140,12 +145,20 @@ public class FolderService {
     Folder newParent = checkFolderAccessibility(newParentId, requestingUser);
     folder.setParent(newParent);
     folderRepository.save(folder);
+    String log = requestingUser.getUsername() + " moved folder from " + folder.getParent().getName() + " to "
+        + newParent.getName();
+    logFolderActivity(requestingUser, folder, ActivityType.MODIFIED, log);
   }
 
   public void changeFolderVisibility(String folderId, Boolean isShared, User requestingUser) {
     Folder folder = checkFolderAccessibility(folderId, requestingUser);
     folder.setShared(isShared);
     folderRepository.save(folder);
+
+    String shareStatus = isShared ? " shared " : " turned off sharing for ";
+    String log = requestingUser.getUsername() + shareStatus + folder.getName();
+
+    logFolderActivity(requestingUser, folder, ActivityType.MODIFIED, log);
   }
 
   public void checkFolderNameAvailability(String newName, User requestingUser, Folder parentFolder) {
@@ -163,5 +176,10 @@ public class FolderService {
       throw new CustomException(HttpStatus.FORBIDDEN, "Not allowed to access this folder!");
     }
     return folder;
+  }
+
+  public void logFolderActivity(User actor, Folder targetFolder, ActivityType activityType, String log) {
+    activityService.saveActivityLog(
+        ActivityLog.builder().actor(actor).targetFolder(targetFolder).activityType(activityType).log(log).build());
   }
 }

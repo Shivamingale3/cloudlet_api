@@ -36,10 +36,12 @@ public class FolderController {
     return ResponseEntity.ok().body(new Response(HttpStatus.OK, "Success", allFolders));
   }
 
-  @GetMapping("/by-parent-id/{parentId}")
-  public ResponseEntity<Response> getFoldersByParentId(@PathVariable String parentId, @RequestParam String search,
+  @GetMapping("/by-parent-id")
+  public ResponseEntity<Response> getFoldersByParentId(@RequestParam(defaultValue = "") String parentId,
+      @RequestParam(defaultValue = "") String search,
       @AuthenticationPrincipal User requestingUser) {
-    return ResponseEntity.ok().body(new Response(HttpStatus.OK, "Success", null));
+    List<FolderResponseDto> folders = folderService.getAllFoldersByParentId(parentId, search, requestingUser);
+    return ResponseEntity.ok().body(new Response(HttpStatus.OK, "Success", folders));
   }
 
   @GetMapping("/{folderId}")
@@ -53,7 +55,7 @@ public class FolderController {
   public ResponseEntity<Response> createFolder(@RequestBody CreateFolderDto folderData,
       @AuthenticationPrincipal User requestingUser,
       @RequestParam(defaultValue = "false") Boolean isPublic) {
-    folderService.createFolder(folderData, requestingUser.getUserId(), isPublic);
+    folderService.createFolder(folderData, requestingUser, isPublic);
     return ResponseEntity.ok().body(new Response(HttpStatus.OK, "Success", null));
   }
 
